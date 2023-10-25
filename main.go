@@ -10,7 +10,10 @@ func main() {
 	router := gin.Default()
 
 	router.POST("/users/register", controllers.CreateUser)
-	router.GET("/users/:id", controllers.GetUser)
+	router.GET("/users/:id", controllers.ReadUser)
+	router.PATCH("/users/:id", controllers.UpdateUser)
+	router.DELETE("/user/:id", controllers.DeleteUser)
+
 	router.GET("/users", controllers.GetAllUsers)
 	router.GET("/tags", controllers.GetAllTags)
 

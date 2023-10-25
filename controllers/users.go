@@ -16,6 +16,13 @@ type SignUp struct {
 	Phone     string `json:"phone"`
 }
 
+type UpdateUserPld struct {
+	Firstname string `json:"firstname,omitempty"`
+	Lastname  string `json:"lastname,omitempty"`
+	Password  string `json:"password,omitempty"`
+	Phone     string `json:"phone,omitempty"`
+}
+
 type TagsRegister struct {
 	Names  []string `json:"names"`
 	Expiry int64    `json:"expiry"`
@@ -40,8 +47,7 @@ func CreateUser(c *gin.Context) {
 		"name":    user.Firstname + " " + user.Lastname,
 	})
 }
-
-func GetUser(c *gin.Context) {
+func ReadUser(c *gin.Context) {
 	var user models.User
 	id := c.Param("id")
 	if err := DB.Get().Preload("Tags").Where("id = ?", id).First(&user).Error; err != nil {
@@ -55,6 +61,57 @@ func GetUser(c *gin.Context) {
 		"phone": user.Phone,
 		"tags":  user.Tags,
 	})
+}
+
+func UpdateUser(c *gin.Context) {
+	var body UpdateUserPld
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	var user models.User
+	userID := c.Param("id")
+	if err := DB.Get().Where("id = ?", userID).First(&user).Error; err != nil {
+		c.JSON(404, gin.H{"error": "User not found"})
+		return
+	}
+	fieldsToUpdate := make(map[string]interface{})
+
+	if body.Phone != "" {
+		fieldsToUpdate["Phone"] = body.Phone
+	}
+	if body.Password != "" {
+		fieldsToUpdate["Password"] = body.Password
+	}
+	if body.Firstname != "" {
+		fieldsToUpdate["Firstname"] = body.Firstname
+	}
+	if body.Lastname != "" {
+		fieldsToUpdate["Lastname"] = body.Lastname
+	}
+
+	go UserUpdate(c, &user, fieldsToUpdate)
+	c.JSON(http.StatusOK, gin.H{
+		"message": "User successfully Updated",
+		"name":    user.Firstname + " " + user.Lastname,
+	})
+}
+
+func DeleteUser(c *gin.Context) {
+	userID := c.Param("id")
+
+	var user models.User
+	if err := DB.Get().Where("id = ?", userID).First(&user).Error; err != nil {
+		c.JSON(404, gin.H{"error": "User not found"})
+		return
+	}
+
+	if err := DB.Get().Delete(&user).Error; err != nil {
+		c.JSON(500, gin.H{"error": "Failed to delete user"})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "User deleted successfully"})
 }
 
 func GetAllUsers(c *gin.Context) {

@@ -14,7 +14,16 @@ func UserCreation(c *gin.Context, user *models.User) {
 		log.Fatal("failed to hash Password ", err)
 	}
 	user.Password = pass
-	DB.Get().Create(user)
+	DB.Get().Save(user)
+}
+
+func UserUpdate(c *gin.Context, user *models.User, fields map[string]interface{}) {
+	pass, err := HashPassword(user.Password)
+	if err != nil {
+		log.Fatal("failed to hash Password ", err)
+	}
+	user.Password = pass
+	DB.Get().Model(&user).Updates(fields)
 }
 
 func HashPassword(password string) (string, error) {
