@@ -3,9 +3,11 @@ package DB
 import (
 	"fmt"
 	"github.com/fahimimam/UserStore/models"
+	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
+	"net/http"
 )
 
 const (
@@ -38,4 +40,13 @@ func Get() *gorm.DB {
 		return ConnectDB()
 	}
 	return DB
+}
+
+func AutoMigrateDB(c *gin.Context) {
+	log.Println("Starting Migrator")
+	Get().AutoMigrate(models.User{}, models.Tags{})
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Migrated successfully",
+	})
 }

@@ -1,6 +1,9 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"time"
+)
 
 type User struct {
 	gorm.Model
@@ -8,4 +11,11 @@ type User struct {
 	Lastname  string `json:"lastname"`
 	Password  string `json:"password"`
 	Phone     string `json:"phone"`
+	Tags      []Tags `json:"tags"gorm:"many2many:user_tags;"`
+}
+
+type Tags struct {
+	gorm.Model
+	Name   string    `json:"name"`
+	Expiry time.Time `json:"expiry"`
 }
