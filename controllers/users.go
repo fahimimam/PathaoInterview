@@ -149,8 +149,10 @@ func AssignTags(c *gin.Context) {
 }
 
 func SearchUsersByTags(c *gin.Context) {
+	deleteExpiredTags()
 	tags := c.Query("tags")
 	tagList := strings.Split(tags, ",")
+
 	userMap := make(map[uint]models.User)
 	var users []models.User
 	DB.Get().Where("tags.name IN (?)", tagList).
@@ -173,6 +175,6 @@ func GetAllTags(c *gin.Context) {
 
 	DB.Get().Find(&tags)
 	c.JSON(http.StatusOK, gin.H{
-		"users": tags,
+		"tags": tags,
 	})
 }

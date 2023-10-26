@@ -19,3 +19,8 @@ type Tags struct {
 	Name   string    `json:"name"`
 	Expiry time.Time `json:"expiry"`
 }
+
+type UserTag struct {
+	UserID int64 `json:"user_id"`
+	TagsID int64 `json:"tags_id"`
+}

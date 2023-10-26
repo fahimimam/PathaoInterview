@@ -45,7 +45,6 @@ func Get() *gorm.DB {
 func AutoMigrateDB(c *gin.Context) {
 	log.Println("Starting Migrator")
 	Get().AutoMigrate(models.User{}, models.Tags{})
-
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Migrated successfully",
 	})
